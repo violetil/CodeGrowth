@@ -13,7 +13,7 @@ int main() {
     getline(cin, str);
     get_next(str, next);
 
-    for (int i = 0; i <= str.length(); i++) {
+    for (int i = 0; i < str.length(); i++) {
         cout << next[i] << " ";
     }
     cout << endl;
