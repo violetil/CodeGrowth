@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cmath>
 #include <cstring>
 #include <vector>
 #include <string>
@@ -7,12 +8,12 @@
 using namespace std;
 
 void ConvertEnd(const string & front, vector<char> & end);
-int Compute(const vector<char> & end);
+float Compute(const vector<char> & end);
 bool IsOp(char ch);
 bool IsBig(char ch0, char ch1);
-int FindValue(int & value, const vector<char> & arr, int star);
-int TopFloat(stack<int> & s);
-int SigComp(int x, int y, char op);
+int FindValue(float & value, const vector<char> & arr, int star);
+float TopFloat(stack<float> & s);
+float SigComp(float x, float y, char op);
 
 int main() {
     string front;
@@ -82,7 +83,7 @@ bool IsBig(char ch0, char ch1) {
     }
 }
 
-int Compute(const vector<char> & end) {
+float Compute(const vector<char> & end) {
     // Compute the value throught the end format
     stack<float> s;
 
@@ -98,11 +99,11 @@ int Compute(const vector<char> & end) {
 
     if (!s.empty()) {
         return s.top();
-    } else cout << "Error!\n";
+    } else { cout << "Error!\n"; return 0; }
 }
 
 int FindValue(float & value, const vector<char> & arr, int start) {
-    int i, j; value = 0;
+    int i, j, p; value = 0;
     bool isDecimal = false;
     float integer = 0, decimal = 0;
 
@@ -111,8 +112,9 @@ int FindValue(float & value, const vector<char> & arr, int start) {
         if (arr[i] == '.') { isDecimal = true; break; }
     }
     if (isDecimal == true) {
-        for (j = i + 1; j < arr.size() && isdigit(arr[i]); j++) {
-            
+        for (j = i + 1, p = -1; j < arr.size() && isdigit(arr[j]); j++) {
+            decimal += (arr[j] - '0') * pow(10.0, p);
+            p--;
         }
     }
     value = integer + decimal;
@@ -120,19 +122,17 @@ int FindValue(float & value, const vector<char> & arr, int start) {
     return i - start - 1;
 }
 
-int TopFloat(stack<int> & s) {
+float TopFloat(stack<float> & s) {
     if (s.empty()) {
         cout << "Error!\n";
         return 0;
     } else {
-        int temp = s.top(); s.pop();
+        float temp = s.top(); s.pop();
         return temp;
     }
 }
 
-int SigComp(int x, int y, char op) {
-    int value = 0;
-
+float SigComp(float x, float y, char op) {
     switch (op) {
         case '+': return x + y;
         case '-': return x - y;
