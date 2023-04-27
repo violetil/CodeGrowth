@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 #include <cmath>
 #include <cstring>
 #include <vector>
@@ -21,14 +22,15 @@ int main() {
 
     // Read input
     cout << "Enter the expression: ";
-    while (getline(cin, front))
+    while (getline(cin, front)) {
+        // Conver to the end format
+        ConvertEnd(front, end);
 
-    // Conver to the end format
-    ConvertEnd(front, end);
-
-    // Compute the value
-    cout << Compute(end) << endl;
-
+        // Compute the value
+        cout << Compute(end) << endl;
+        cout << setiosflags(ios::fixed) << setprecision(2);
+        cout << "Next expression: ";
+    }
     return 0;
 }
 
@@ -36,7 +38,7 @@ void ConvertEnd(const string & front, vector<char> & end) {
     stack<char> s;
 
     for (int i = 0; i < front.length(); i++) {
-        if (isdigit(front[i])) end.push_back(front[i]);
+        if (isdigit(front[i]) || front[i] == '.') end.push_back(front[i]);
         else if (IsOp(front[i])) {
             end.push_back(' ');
             if (s.empty()) s.push(front[i]);
@@ -107,9 +109,10 @@ int FindValue(float & value, const vector<char> & arr, int start) {
     bool isDecimal = false;
     float integer = 0, decimal = 0;
 
-    for (i = start; i < arr.size() && (isdigit(arr[i]) || arr[i] == '.'); i++) {
-        integer = (integer * 10) + (arr[i] - '0');         
+    for (i = start; i < arr.size() && (isdigit(arr[i]) || arr[i] == '.' || arr[i] == ' '); i++) {
+        if (arr[i] == ' ') continue;
         if (arr[i] == '.') { isDecimal = true; break; }
+        integer = (integer * 10) + (arr[i] - '0');         
     }
     if (isDecimal == true) {
         for (j = i + 1, p = -1; j < arr.size() && isdigit(arr[j]); j++) {
@@ -119,7 +122,7 @@ int FindValue(float & value, const vector<char> & arr, int start) {
     }
     value = integer + decimal;
 
-    return i - start - 1;
+    return isDecimal ? j - start - 1 : i - start - 1;
 }
 
 float TopFloat(stack<float> & s) {
