@@ -27,8 +27,8 @@ int main() {
         ConvertEnd(front, end);
 
         // Compute the value
-        cout << Compute(end) << endl;
         cout << setiosflags(ios::fixed) << setprecision(2);
+        cout << Compute(end) << endl;
         cout << "Next expression: ";
     }
     return 0;
