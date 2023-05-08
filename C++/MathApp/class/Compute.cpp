@@ -5,34 +5,9 @@
 #include <vector>
 #include <string>
 #include <stack>
+#include "Compute.h"
 
 using namespace std;
-
-void ConvertEnd(const string & front, vector<char> & end);
-float Compute(const vector<char> & end);
-bool IsOp(char ch);
-bool IsBig(char ch0, char ch1);
-int FindValue(float & value, const vector<char> & arr, int star);
-float TopFloat(stack<float> & s);
-float SigComp(float x, float y, char op);
-
-int main() {
-    string front;
-    vector<char> end;
-
-    // Read input
-    cout << "Enter the expression: ";
-    while (getline(cin, front)) {
-        // Conver to the end format
-        ConvertEnd(front, end);
-
-        // Compute the value
-        cout << Compute(end) << endl;
-        cout << setiosflags(ios::fixed) << setprecision(2);
-        cout << "Next expression: ";
-    }
-    return 0;
-}
 
 void ConvertEnd(const string & front, vector<char> & end) {
     stack<char> s;
@@ -86,7 +61,7 @@ bool IsBig(char ch0, char ch1) {
 }
 
 float Compute(const vector<char> & end) {
-    // Compute the value through the end format
+    // Compute the value throught the end format
     stack<float> s;
 
     for (int i = 0; i < end.size(); i++) {
@@ -110,7 +85,7 @@ int FindValue(float & value, const vector<char> & arr, int start) {
     float integer = 0, decimal = 0;
 
     for (i = start; i < arr.size() && (isdigit(arr[i]) || arr[i] == '.' || arr[i] == ' '); i++) {
-        if (arr[i] == ' ') break;
+        if (arr[i] == ' ') continue;
         if (arr[i] == '.') { isDecimal = true; break; }
         integer = (integer * 10) + (arr[i] - '0');         
     }
