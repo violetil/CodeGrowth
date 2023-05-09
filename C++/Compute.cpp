@@ -8,12 +8,31 @@
 
 using namespace std;
 
+// Convert the infix expression entered by the 
+// user into a suffix expression
 void ConvertEnd(const string & front, vector<char> & end);
+
+// Calculate the final value based on the suffix 
+// expression from the ConvertEnd()
 float Compute(const vector<char> & end);
+
+// Return ture if ch equals 
+//   '+'   '-'   '*'   '/'   '('   ')'
 bool IsOp(char ch);
+
+// Return ture if the proprity of ch0 is greater than ch1
 bool IsBig(char ch0, char ch1);
+
+// Read the number or decimal character after start and 
+// convert it to a numberical value
 int FindValue(float & value, const vector<char> & arr, int star);
+
+// Return the top value in float stack 
+// if the stack is not empty
 float TopFloat(stack<float> & s);
+
+// Preform a specified four arithmetic 
+// operation on x and y
 float SigComp(float x, float y, char op);
 
 int main() {
@@ -21,16 +40,23 @@ int main() {
     vector<char> end;
 
     // Read input
-    cout << "Enter the expression: ";
-    while (getline(cin, front)) {
+    cout << "Enter the expression(q to quit): ";
+    while (getline(cin, front) && front[0] != 'q') {
+        if (!isdigit(front[0])) {
+            cout << "Please enter the correct expression:";
+            end.clear(); continue;
+        }
+
         // Conver to the end format
         ConvertEnd(front, end);
 
-        // Compute the value
+        // Calculate the value
         cout << setiosflags(ios::fixed) << setprecision(2);
         cout << Compute(end) << endl;
-        cout << "Next expression: ";
+        end.clear();
+        cout << "Next expression(q to quit): ";
     }
+    cout << "Bye!\n";
     return 0;
 }
 
