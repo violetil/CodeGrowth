@@ -1,12 +1,15 @@
 // Start the math app --2023.4.20
 #include <iostream>
+#include "class/Computer.h"
+#include <string>
 
 int main() {
+    Computer count; // Class statement
+    std::string str;
 
-    // Create a math fuction 
+    std::getline(cin, str);
+    count.get(str);
+    count.show();
 
-    // Read the operate from user
-    // Now just have only one operate <derivation>
-
-    // Dispaly the derivative of the function
+    return 0;
 }
