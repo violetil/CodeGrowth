@@ -1,0 +1,5 @@
+# Ignore the object file.
+**/*.o
+
+# Ignore the executable file.
+**/*.exe

@@ -1,4 +1,3 @@
-// Start the math app --2023.4.20
 #include <iostream>
 #include "Computer.h"
 #include <string>
