@@ -23,14 +23,44 @@ static bool isGreater(char x, char y) {
     }
 }
 
-/** Convert the incoming string into a suffix expression and return. */
-static std::string converToSuf(std::string& e) {
+/** Find the expression in parentheses corresponding to start and return. */
+static std::string findString(const std::string& e, int start) {
     stack<char> s;
     std::string res;
 
+    if (e[start] != '(') {
+        std::cout << "Error expression format!\n";
+        return "";
+    }
+
+    for (int i = start + 1; i < e.size(); i++) {
+        if (s.empty() && e[i] == ')') {
+            break;
+        } else if (e[i] == ')' && !s.empty()) {
+            s.pop();
+        } else if (e[i] == '(') {
+            s.push(e[i]);
+        } 
+
+        res.push_back(e[i]);
+    }
+    return res;
+}
+
+/** Convert the incoming string into a suffix expression and return. */
+static std::string convertToSuf(const std::string& e) {
+    stack<char> s;
+    std::string res;
+
+    if ((e[0] == '-' || e[0] == '+') && isdigit(e[e.size() - 1])) {
+        res = e; return res;                        // Negative number.
+    }
+
     for (int i = 0; i < (int)e.size(); i++) {
-        if (isdigit(e[i]) || e[i] == '.'){          // Is a number or decimal point.
-            res.push_back(e[i]);
+        if (e[i] == ' ') {
+            continue;
+        } else if (isdigit(e[i]) || e[i] == '.') {  // Is a number or decimal point.
+            res.push_back(e[i]); res.push_back(' ');
         } else if (isSymbol(e[i])) {                // Is a arithmetic symbol.
             if (s.empty()) {                            // Stack is empty.
                 s.push(e[i]);
@@ -38,12 +68,23 @@ static std::string converToSuf(std::string& e) {
                 s.push(e[i]);
             } else {                                    // Not greater
                 while (!s.empty() && !isGreater(e[i], s.top())) {
-                    res.push_back(s.top());
+                    res.push_back(s.top()); res.push_back(' ');
                     s.pop();
                 } s.push(e[i]);
             }
+        } else if (e[i] == '(') {
+            res.push_back(' ');
+            res += convertToSuf(findString(e, i));
+            res.push_back(' ');
         }
     }
+
+    while (!s.empty()) {
+        res.push_back(s.top()); res.push_back(' ');
+        s.pop();
+    }
+
+    return res;
 }
 
 /** Convert infix expression e to suffix expression. */
