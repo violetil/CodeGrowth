@@ -6,6 +6,13 @@
 #include <stack>
 #include <iomanip>
 
+/***    
+ * 
+ *      Static function. 
+ * 
+ * 
+*/
+
 /** Return true if ch is an arithmetic symbol. */
 static bool isSymbol(char ch) {
     return (ch == '+') || (ch == '-') || (ch == '*') || (ch == '/');
@@ -31,9 +38,11 @@ static bool isNumber(const std::string& e) {
             sym = true;
         } else if (!sym && !num && isdigit(e[i])) {
             break;
+        } else if (sym && !num && isdigit(e[i])) {
+            num = true;
         } else if (sym && num) {
             if (!isdigit(e[i]) && e[i] != ' ' && e[i] != '.') {
-                num = false;
+                num = false; break;
             }
         }
     } 
@@ -69,9 +78,22 @@ static int nextPos(const std::string& e, int start) {
     return next;
 }
 
+/** Find the position of end of a numberical values. */
+static int nextPosVal(const std::string& s, int start) {
+    int pos;
+    for (pos = start; pos < s.size() && s[pos] != ' '; pos++) {
+        continue;
+    }
+    return pos;
+}
+
 /** Find the expression in parentheses corresponding to start and return. */
 static std::string findString(const std::string& e, int start, int rear) {
     std::string res;
+
+    if (e[start] != '(') {
+        res.push_back(e[start]);
+    }
     for (int i = start + 1; i < rear; i++) {
         res.push_back(e[i]);
     }
@@ -129,13 +151,92 @@ static void convertExpre(std::string& eInfix, std::string& eSuffix) {
     eSuffix = convertExpre(eInfix);
 }
 
+/** Convert string to numberical values. */
+static double convertVal(const std::string& s) {
+    double resInt = 0, resDec = 0;
+    bool isDeci = false;
+
+    for (int i = 0; i < s.size(); i++) {
+        if (!isDeci && isdigit(s[i])) {
+            resInt = (resInt * 10) + (s[i] - '0'); 
+        } else if (isDeci && isdigit(s[i])) {
+            resDec += s[i] - '0';
+            resDec /= 10;
+        } else if (!isDeci && s[i] == '.') {
+            isDeci = true;
+        } else { std::cout << "Error in convertVal\n"; }        
+    }
+    return resInt + resDec;
+}
+
+/** Remove the first two elements of the stack s. */
+static void popTwo(stack<double>& s, double& x, double& y) {
+    int i;
+    for (i = 0; i < 2 && !s.empty(); i++) {
+        if (i == 0) {
+            x = s.top();
+        } else {
+            y = s.top();
+        }
+        s.pop(); 
+    }
+    if (i != 2) { std::cout << "Error in popTwo!\n"; }
+}
+
+/** Perform specified operation and return result. */
+static double operate(double x, double y, char o) {
+    double res = 0;
+    switch(o) {
+        case '+': res = x + y; break;
+        case '-': res = x - y; break;
+        case '*': res = x * y; break;
+        case '/': res = x / y; break;
+        default: std::cout << "Error in operate!\n";
+    }
+    return res;
+}
+
+/** Calculate the value based on the suffix e. */
+static double calculate(const std::string& eSuffix) {
+    double res = 0;
+    stack<double> s;
+
+    for (int i = 0; i < eSuffix.size(); i++) {
+        if (isdigit(eSuffix[i])) {
+            int rear = nextPosVal(eSuffix, i);
+            s.push(convertVal(findString(eSuffix, i, rear)));
+            i = rear;
+        } else if (isSymbol(eSuffix[i])) {
+            if (eSuffix[i] == '-' && i + 1 < eSuffix.size() && isdigit(eSuffix[i + 1])) {
+                int rear = nextPosVal(eSuffix, i + 1);
+                s.push(-convertVal(findString(eSuffix, i + 1, rear)));
+                i = rear;
+            } else {
+                double x = 0, y = 0; popTwo(s, y, x);
+                res = operate(x, y, eSuffix[i]);
+                s.push(res);
+            }
+        }
+    }
+    if (!s.empty()) {
+        return s.top();
+    } else {
+        std::cout << "Error in calculate!\n";
+        return 0;
+    }
+}
+
+/***    
+ * 
+ *      Member function of class. 
+ * 
+ * 
+*/
+
 /** Show the value of expression. */
 void Computer::show()
 {
-    using namespace std;
-    cout << setiosflags(ios::fixed) << setprecision(2);
-    std::cout << expression << " = " << value
-        << std::endl;
+    std::cout << value << std::endl;
 }
 
 /** Calculate the value of expression. */
@@ -144,5 +245,5 @@ void Computer::compute() {
     // 2. Calculate the value.
     std::string suffix;
     convertExpre(expression, suffix);
-    std::cout << suffix << endl;
+    value = calculate(suffix);
 }
