@@ -6,9 +6,11 @@ int main() {
     Computer count; // Class statement
     std::string str;
 
-    std::getline(cin, str);
-    count.get(str);
-    count.show();
-
+    std::cout << "Enter an expression: ";
+    while (std::getline(cin, str)) {
+        count.get(str);
+        count.compute();
+        std::cout << "Next: ";
+    }
     return 0;
 }

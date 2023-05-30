@@ -23,64 +23,96 @@ static bool isGreater(char x, char y) {
     }
 }
 
-/** Find the expression in parentheses corresponding to start and return. */
-static std::string findString(const std::string& e, int start) {
+/** Return true if the expression e is a number. */
+static bool isNumber(const std::string& e) {
+    bool sym = false, num = false;
+    for (int i = 0; i < e.size(); i++) {
+        if (!sym && !num && (e[i] == '+' || e[i] == '-')) {
+            sym = true;
+        } else if (!sym && !num && isdigit(e[i])) {
+            break;
+        } else if (sym && num) {
+            if (!isdigit(e[i]) && e[i] != ' ' && e[i] != '.') {
+                num = false;
+            }
+        }
+    } 
+    if (sym && num) return true;
+    return false;
+}
+
+/** Find the positon of reverse bracket corresponding to the position 
+ *  start in the experssion and return. 
+*/
+static int nextPos(const std::string& e, int start) {
     stack<char> s;
-    std::string res;
+    int next = start;
+    bool isRight = false;               // Whether is right bracket.
 
     if (e[start] != '(') {
-        std::cout << "Error expression format!\n";
-        return "";
+        std::cout << "Error bracket front!\n";
+        return next;
     }
 
-    for (int i = start + 1; i < e.size(); i++) {
-        if (s.empty() && e[i] == ')') {
-            break;
-        } else if (e[i] == ')' && !s.empty()) {
+    for (next = start + 1; next < e.size(); next++) {
+        if (s.empty() && e[next] == ')') {
+            isRight = true; break;
+        } else if (e[next] == ')' && !s.empty()) {
             s.pop();
-        } else if (e[i] == '(') {
-            s.push(e[i]);
-        } 
+        } else if (e[next] == '(') {
+            s.push(e[next]);
+        }
+    }
+    if (!isRight) {
+        std::cout << "Error bracket behind!\n"; next = start;
+    }
+    return next;
+}
 
+/** Find the expression in parentheses corresponding to start and return. */
+static std::string findString(const std::string& e, int start, int rear) {
+    std::string res;
+    for (int i = start + 1; i < rear; i++) {
         res.push_back(e[i]);
     }
     return res;
 }
 
 /** Convert the incoming string into a suffix expression and return. */
-static std::string convertToSuf(const std::string& e) {
+static std::string convertExpre(const std::string& e) {
     stack<char> s;
     std::string res;
 
-    if ((e[0] == '-' || e[0] == '+') && isdigit(e[e.size() - 1])) {
-        res = e; return res;                        // Negative number.
+    if (isNumber(e)) {
+        res = e; return res;
     }
 
     for (int i = 0; i < (int)e.size(); i++) {
         if (e[i] == ' ') {
             continue;
-        } else if (isdigit(e[i]) || e[i] == '.') {  // Is a number or decimal point.
-            res.push_back(e[i]); res.push_back(' ');
-        } else if (isSymbol(e[i])) {                // Is a arithmetic symbol.
-            if (s.empty()) {                            // Stack is empty.
+        } else if (isdigit(e[i]) || e[i] == '.') {      // Is a number or decimal point.
+            res.push_back(e[i]); 
+        } else if (isSymbol(e[i])) {                    // Is a arithmetic symbol.
+            res.push_back(' ');
+            if (s.empty()) {                                // Stack is empty.
                 s.push(e[i]);
-            } else if (isGreater(e[i], s.top())) {      // Greater than the top of stack.
+            } else if (isGreater(e[i], s.top())) {          // Greater than the top of stack.
                 s.push(e[i]);
-            } else {                                    // Not greater
+            } else {                                        // Not greater
                 while (!s.empty() && !isGreater(e[i], s.top())) {
                     res.push_back(s.top()); res.push_back(' ');
                     s.pop();
                 } s.push(e[i]);
             }
         } else if (e[i] == '(') {
-            res.push_back(' ');
-            res += convertToSuf(findString(e, i));
-            res.push_back(' ');
-        }
+            int next = nextPos(e, i);
+            res += convertExpre(findString(e, i, next));
+            i = next;
+        } else { std::cout << "Error expression!\n"; }
     }
 
     while (!s.empty()) {
-        res.push_back(s.top()); res.push_back(' ');
+        res.push_back(' '); res.push_back(s.top());
         s.pop();
     }
 
@@ -94,6 +126,7 @@ static void convertExpre(std::string& eInfix, std::string& eSuffix) {
     //    Else add the top of stack to the eSuffix untill the top less the symbol.
     // 3. Meet the front bracket, find the first internal expression
     //    Use the recursion???     
+    eSuffix = convertExpre(eInfix);
 }
 
 /** Show the value of expression. */
@@ -107,5 +140,9 @@ void Computer::show()
 
 /** Calculate the value of expression. */
 void Computer::compute() {
-
+    // 1. Convert to suffix expression.
+    // 2. Calculate the value.
+    std::string suffix;
+    convertExpre(expression, suffix);
+    std::cout << suffix << endl;
 }
