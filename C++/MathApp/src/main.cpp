@@ -9,7 +9,6 @@ int main() {
     std::cout << ">>> ";
     while (std::getline(std::cin, str)) {
         count.get(str);
-        count.compute();
         count.show();
         std::cout << ">>> ";
     }

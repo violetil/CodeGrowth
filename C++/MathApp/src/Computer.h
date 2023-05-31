@@ -11,12 +11,14 @@ class Computer
 private:
     std::string expression;
     double value;
-public:
-    /** Get the expression. */
-    void get(const std::string& exp) { expression = exp; }
 
+protected:
     /** Calculate the value of expression and store to value. */
     void compute();
+
+public:
+    /** Get the expression. */
+    void get(const std::string& exp) { expression = exp; compute(); }
 
     /** Print the value. */
     void show();
