@@ -104,6 +104,7 @@ static std::string findString(const std::string& e, int start, int rear) {
 static std::string convertExpre(const std::string& e) {
     stack<char> s;
     std::string res;
+    bool firstSymbol = false;
 
     if (isNumber(e)) {
         res = e; return res;
@@ -115,6 +116,14 @@ static std::string convertExpre(const std::string& e) {
         } else if (isdigit(e[i]) || e[i] == '.') {      // Is a number or decimal point.
             res.push_back(e[i]); 
         } else if (isSymbol(e[i])) {                    // Is a arithmetic symbol.
+            if (!firstSymbol && (e[i] == '+' || e[i] == '-')) {
+                if (i + 1 < e.size() && isdigit(e[i + 1])) {
+                    if (e[i] == '-') { res.push_back(e[i]); }
+                    firstSymbol = true;
+                    continue;
+                }
+            }
+            firstSymbol = true;
             res.push_back(' ');
             if (s.empty()) {                                // Stack is empty.
                 s.push(e[i]);
@@ -154,7 +163,7 @@ static void convertExpre(std::string& eInfix, std::string& eSuffix) {
 /** Convert string to numberical values. */
 static double convertVal(const std::string& s) {
     double resInt = 0, resDec = 0;
-    bool isDeci = false;
+    bool isDeci = false, rightRun = true;
 
     for (int i = 0; i < s.size(); i++) {
         if (!isDeci && isdigit(s[i])) {
@@ -164,7 +173,10 @@ static double convertVal(const std::string& s) {
             resDec /= 10;
         } else if (!isDeci && s[i] == '.') {
             isDeci = true;
-        } else { std::cout << "Error in convertVal\n"; }        
+        } else if (rightRun) {
+            std::cout << "Error in convertVal\n"; 
+            rightRun = false;
+        } 
     }
     return resInt + resDec;
 }
@@ -216,6 +228,10 @@ static double calculate(const std::string& eSuffix) {
                 res = operate(x, y, eSuffix[i]);
                 s.push(res);
             }
+        } else if (eSuffix[i] == '.') {
+            int rear = nextPosVal(eSuffix, i);
+            s.push(convertVal(findString(eSuffix, i, rear)));
+            i = rear;
         }
     }
     if (!s.empty()) {
